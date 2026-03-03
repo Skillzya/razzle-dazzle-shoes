@@ -2065,127 +2065,50 @@ function buildZoomGallery() {
 }
 
 function openZoom(imgEl) {
-  // Gather product info from the card containing this image
-  var card = imgEl.closest('.product-card') || imgEl.closest('[style*="border-radius:20px"]') || imgEl.closest('[style*="border-radius:24px"]');
-  var name = '', brand = '', price = '', desc = '', waLink = '', sizesHTML = '';
-  
-  if (card) {
-    var nameEl = card.querySelector('.card-name, [style*="Bebas Neue"][style*="font-size:24px"], [style*="Bebas Neue"][style*="font-size:28px"]');
-    var brandEl = card.querySelector('.card-tag, [style*="Orbitron"][style*="font-size:9px"]');
-    var priceEl = card.querySelector('.card-price, [style*="font-size:15px"][style*="font-weight:900"], [style*="font-size:16px"][style*="font-weight:900"]');
-    var waEl = card.querySelector('a[href*="wa.me"]');
-    var descEl = card.querySelector('.card-details p, [style*="font-style:italic"]');
-    var sizesEl = card.querySelector('[id^="cardDet"]');
-    
-    if (nameEl) name = nameEl.textContent.trim();
-    if (brandEl) brand = brandEl.textContent.trim();
-    if (priceEl) price = priceEl.textContent.trim();
-    if (waEl) waLink = waEl.href;
-    if (descEl) desc = descEl.textContent.trim();
-    if (sizesEl) {
-      var sizeSpans = sizesEl.querySelectorAll('span[onclick*="selectSize"]');
-      var sizeArr = [];
-      sizeSpans.forEach(function(s){ sizeArr.push(s.textContent.trim()); });
-      sizesHTML = sizeArr.join(' · ');
+  var src = imgEl.src;
+  // Convert base64 JPEG to PNG and open in new tab for full view + download
+  var canvas = document.createElement('canvas');
+  var tempImg = new Image();
+  tempImg.onload = function() {
+    canvas.width = tempImg.naturalWidth;
+    canvas.height = tempImg.naturalHeight;
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(tempImg, 0, 0);
+    var pngUrl = canvas.toDataURL('image/png');
+    // Get product name for filename
+    var card = imgEl.closest('.product-card') || imgEl.closest('[style*="border-radius:20px"]') || imgEl.closest('[style*="border-radius:24px"]');
+    var name = 'razzle-dazzle';
+    if (card) {
+      var nameEl = card.querySelector('.card-name');
+      if (nameEl) name = nameEl.textContent.trim().replace(/\s+/g, '-').toLowerCase();
     }
-  }
-  
-  // Build all images from same card for navigation
-  allZoomImgs = [];
-  if (card) {
-    card.querySelectorAll('img[onclick*="openZoom"]').forEach(function(img) {
-      allZoomImgs.push({ src: img.src, alt: img.alt, name: name, brand: brand, price: price, desc: desc, waLink: waLink, sizesHTML: sizesHTML });
-    });
-  }
-  if (!allZoomImgs.length) {
-    allZoomImgs = [{ src: imgEl.src, alt: imgEl.alt, name: name, brand: brand, price: price, desc: desc, waLink: waLink, sizesHTML: sizesHTML }];
-  }
-  
-  var srcToFind = imgEl.src;
-  currentZoomIdx = allZoomImgs.findIndex(function(i){ return i.src === srcToFind; });
-  if (currentZoomIdx === -1) currentZoomIdx = 0;
-  
-  showZoomAt(currentZoomIdx);
-  var modal = document.getElementById('zoomModal');
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-  document.addEventListener('keydown', zoomKeyNav);
-}
-
-function showZoomAt(idx) {
-  var item = allZoomImgs[idx];
-  if (!item) return;
-  
-  var zImg = document.getElementById('zoomImg');
-  var zInfo = document.getElementById('zoomInfo');
-  var zCounter = document.getElementById('zoomCounter');
-  
-  zImg.style.opacity = '0';
-  setTimeout(function(){
-    zImg.src = item.src;
-    zImg.alt = item.alt || item.name;
-    
-    // Update download button
-    var dlBtn = document.getElementById('zoomDownload');
-    if (dlBtn) {
-      dlBtn.onclick = function(e) {
-        e.stopPropagation();
-        var a = document.createElement('a');
-        a.href = item.src;
-        a.download = (item.name || 'razzle-dazzle') + '.jpg';
-        a.click();
-      };
+    // Open PNG in new tab
+    var newTab = window.open();
+    if (newTab) {
+      newTab.document.write(
+        '<!DOCTYPE html><html><head>' +
+        '<title>' + name.toUpperCase() + ' — Razzle Dazzle Shoes</title>' +
+        '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<style>' +
+        'body{margin:0;background:#060009;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}' +
+        'img{max-width:100vw;max-height:85vh;object-fit:contain;}' +
+        '.bar{position:fixed;bottom:0;left:0;right:0;background:#0D0018EE;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}' +
+        '.title{color:#EECCff;font-size:18px;letter-spacing:2px;font-family:sans-serif;font-weight:700;}' +
+        '.btn{background:linear-gradient(135deg,#D966FF,#FF0A7B);color:#fff;border:none;padding:12px 28px;border-radius:50px;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;text-decoration:none;display:inline-block;}' +
+        '.btn:hover{opacity:0.85;}' +
+        '</style></head><body>' +
+        '<img src="' + pngUrl + '" alt="' + name + '">' +
+        '<div class="bar">' +
+        '<span class="title">🔥 RAZZLE DAZZLE SHOES</span>' +
+        '<a class="btn" href="' + pngUrl + '" download="' + name + '.png">⬇ TÉLÉCHARGER EN PNG</a>' +
+        '</div>' +
+        '</body></html>'
+      );
+      newTab.document.close();
     }
-    
-    // Update WA button
-    var waBtn = document.getElementById('zoomWaBtn');
-    if (waBtn && item.waLink) {
-      waBtn.href = item.waLink;
-      waBtn.style.display = 'flex';
-    }
-    
-    // Update info panel
-    if (zInfo) {
-      document.getElementById('zoomBrand').textContent = item.brand || '';
-      document.getElementById('zoomName').textContent = item.name || '';
-      document.getElementById('zoomPrice').textContent = item.price || '';
-      document.getElementById('zoomDesc').textContent = item.desc || '';
-      document.getElementById('zoomSizes').textContent = item.sizesHTML ? '📏 ' + item.sizesHTML : '';
-    }
-    
-    if (zCounter) zCounter.textContent = allZoomImgs.length > 1 ? (idx+1) + ' / ' + allZoomImgs.length : '';
-    zImg.style.opacity = '1';
-  }, 120);
+  };
+  tempImg.src = src;
 }
-
-function closeZoom(e) {
-  if (e && e.target !== document.getElementById('zoomModal')) return;
-  document.getElementById('zoomModal').style.display = 'none';
-  document.body.style.overflow = '';
-  document.removeEventListener('keydown', zoomKeyNav);
-}
-
-function navigateZoom(dir) {
-  currentZoomIdx = (currentZoomIdx + dir + allZoomImgs.length) % allZoomImgs.length;
-  showZoomAt(currentZoomIdx);
-}
-
-function zoomKeyNav(e) {
-  if (e.key === 'ArrowRight') navigateZoom(1);
-  else if (e.key === 'ArrowLeft') navigateZoom(-1);
-  else if (e.key === 'Escape') { document.getElementById('zoomModal').style.display = 'none'; document.body.style.overflow = ''; document.removeEventListener('keydown', zoomKeyNav); }
-}
-
-// Swipe mobile
-var touchStartX = 0;
-document.getElementById('zoomModal').addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
-document.getElementById('zoomModal').addEventListener('touchend', function(e){
-  var diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) navigateZoom(diff > 0 ? 1 : -1);
-});</script>
-
-
-<script>
 // ===== RAZZLE DAZZLE — PROTECTION CODE SOURCE =====
 
 // 1. Disable text selection globally
