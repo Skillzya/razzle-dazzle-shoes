@@ -34,16 +34,15 @@
   /* Search overlay */
   #searchOverlay{display:none;position:fixed;top:70px;left:0;right:0;bottom:0;background:#060009F0;z-index:997;overflow-y:auto;padding:32px 24px;backdrop-filter:blur(10px);}
   /* Responsive */
-  @media(max-width:960px){
+  @media(max-width:768px){
     .nav-links-desktop{display:none!important;}
     .nav-search-wrap{display:none!important;}
+    .burger-btn{display:flex!important;}
     nav{padding:0 16px;}
   }
-  @media(max-width:959px){
-    .burger-btn{display:flex!important;}
-  }
-  @media(min-width:960px){
+  @media(min-width:769px){
     .burger-btn{display:none!important;}
+    .nav-links-desktop{display:flex!important;}
   }
   @media(max-width:480px){.nav-social{display:none;}}
 
@@ -72,7 +71,7 @@
    =================================================== */
 
 /* --- NAV MOBILE --- */
-@media(max-width:960px){
+@media(max-width:768px){
   nav{padding:0 14px;height:62px;}
   nav .logo img{height:44px;}
 }
@@ -1998,58 +1997,21 @@ window.addEventListener('resize', checkFloatingWA);
 
 
 <!-- ===== ZOOM MODAL ===== -->
-<div id="zoomModal" onclick="closeZoom(event)" style="
-  display:none;position:fixed;inset:0;z-index:9999;
-  background:#000000EE;backdrop-filter:blur(12px);
-  align-items:center;justify-content:center;
-  padding:20px;cursor:zoom-out;">
-  
-  <!-- Close button -->
-  <button onclick="closeZoom()" style="
-    position:absolute;top:16px;right:16px;
-    width:44px;height:44px;border-radius:50%;
-    background:#1A0030;border:1px solid #D966FF55;
-    color:#EECCff;font-size:20px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    z-index:10001;transition:all 0.2s;"
-    onmouseover="this.style.background='#D966FF33'"
-    onmouseout="this.style.background='#1A0030'">✕</button>
+<div id="zoomModal" onclick="closeZoom(event)" style="display:none;position:fixed;inset:0;z-index:9999;background:#000000F5;align-items:center;justify-content:center;cursor:zoom-out;flex-direction:column;">
 
-  <!-- Nav arrows -->  
-  <button id="zoomPrev" onclick="navigateZoom(-1);event.stopPropagation();" style="
-    position:absolute;left:14px;top:50%;transform:translateY(-50%);
-    width:48px;height:48px;border-radius:50%;
-    background:#1A003099;border:1px solid #D966FF55;
-    color:#EECCff;font-size:22px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    z-index:10001;transition:all 0.2s;backdrop-filter:blur(4px);"
-    onmouseover="this.style.background='#D966FF33'"
-    onmouseout="this.style.background='#1A003099'">‹</button>
+  <button onclick="closeZoom()" style="position:absolute;top:16px;right:16px;width:48px;height:48px;border-radius:50%;background:#1A0030CC;border:1px solid #D966FF66;color:#EECCff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10001;transition:all 0.2s;backdrop-filter:blur(8px);" onmouseover="this.style.background='#D966FF44'" onmouseout="this.style.background='#1A0030CC'">✕</button>
 
-  <button id="zoomNext" onclick="navigateZoom(1);event.stopPropagation();" style="
-    position:absolute;right:14px;top:50%;transform:translateY(-50%);
-    width:48px;height:48px;border-radius:50%;
-    background:#1A003099;border:1px solid #D966FF55;
-    color:#EECCff;font-size:22px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    z-index:10001;transition:all 0.2s;backdrop-filter:blur(4px);"
-    onmouseover="this.style.background='#D966FF33'"
-    onmouseout="this.style.background='#1A003099'">›</button>
+  <button id="zoomPrev" onclick="navigateZoom(-1);event.stopPropagation();" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:#1A0030BB;border:1px solid #D966FF55;color:#EECCff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10001;transition:all 0.2s;" onmouseover="this.style.background='#D966FF44'" onmouseout="this.style.background='#1A0030BB'">‹</button>
 
-  <!-- Image container -->
-  <div style="position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;align-items:center;gap:16px;" onclick="event.stopPropagation()">
-    <img id="zoomImg" src="" alt="" style="
-      max-width:min(700px,90vw);max-height:75vh;
-      object-fit:contain;border-radius:20px;
-      box-shadow:0 20px 80px #D966FF33;
-      transition:opacity 0.2s;
-      user-select:none;">
+  <button id="zoomNext" onclick="navigateZoom(1);event.stopPropagation();" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:#1A0030BB;border:1px solid #D966FF55;color:#EECCff;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10001;transition:all 0.2s;" onmouseover="this.style.background='#D966FF44'" onmouseout="this.style.background='#1A0030BB'">›</button>
 
-    <!-- Product info bar -->
-    <div style="text-align:center;padding:14px 24px;background:#0D0018;border:1px solid #D966FF33;border-radius:16px;min-width:220px;">
-      <div id="zoomTitle" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#EECCff;"></div>
-      <div id="zoomCounter" style="font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:3px;color:#664488;margin-top:4px;"></div>
-    </div>
+  <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:60px 80px 80px;" onclick="event.stopPropagation()">
+    <img id="zoomImg" src="" alt="" style="width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;transition:opacity 0.2s;user-select:none;-webkit-user-drag:none;box-shadow:0 8px 60px #00000099;">
+  </div>
+
+  <div onclick="event.stopPropagation()" style="position:absolute;bottom:0;left:0;right:0;padding:16px 24px;background:linear-gradient(to top,#000000DD 60%,transparent);display:flex;align-items:center;justify-content:center;gap:20px;pointer-events:none;">
+    <div id="zoomTitle" style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:3px;color:#EECCff;text-shadow:0 2px 8px #000;"></div>
+    <div id="zoomCounter" style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:#886699;"></div>
   </div>
 </div>
 
